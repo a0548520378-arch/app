@@ -46,8 +46,7 @@ class MainActivity : ComponentActivity() {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
         addButton("הפעל ניטור נסיעה") {
-            requestLocation()
-            startForegroundServiceCompat()
+            if (hasForegroundLocation()) startForegroundServiceCompat() else requestLocation()
         }
         addButton("אפשר מיקום תמיד") {
             openLocationSettings()
@@ -102,6 +101,7 @@ class MainActivity : ComponentActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 10) {
             refresh()
+            if (hasForegroundLocation()) startForegroundServiceCompat()
             if (hasForegroundLocation() && Build.VERSION.SDK_INT >= 29 && !hasBackgroundLocation()) {
                 Toast.makeText(
                     this,
