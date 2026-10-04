@@ -14,3 +14,6 @@
 הפרויקט משתמש ב-Android Gradle Plugin 9.4 וב-Gradle 9.8. הבנייה האוטומטית ב-GitHub Actions מפיקה APK Debug ו-Release.
 
 > הערה: Android Auto/Automotive אינם זהים לאפליקציית Android רגילה. גרסה זו מיועדת להתקנה על מכשיר Android/יחידת מולטימדיה שמריצה APK רגיל; Android Auto projection כפוף לכללי הפלטפורמה.
+
+
+Build trigger check: 2026-10-04.
