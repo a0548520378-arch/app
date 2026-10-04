@@ -21,7 +21,7 @@ class BlockAccessibilityService:AccessibilityService(){
     fun showIfNeeded(){
         if(isExempt() || Prefs.disabled(this) || !DrivingState.driving || overlay!=null)return
         val frame=FrameLayout(this).apply{setBackgroundColor(0x01000000);isClickable=true;isFocusable=true}
-        val bar=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL;setBackgroundColor(0xEE202124.toInt());padding=14;layoutDirection=View.LAYOUT_DIRECTION_RTL}
+        val bar=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL;setBackgroundColor(0xEE202124.toInt());setPadding(14,14,14,14);layoutDirection=View.LAYOUT_DIRECTION_RTL}
         val msg=TextView(this).apply{text="המסך חסום בעת נסיעה";setTextColor(0xFFFFFFFF.toInt());textSize=16f;layoutParams=LinearLayout.LayoutParams(0,-2,1f)}
         val w=Button(this).apply{text="מעבר ל־Waze";setOnClickListener{try{startActivity(packageManager.getLaunchIntentForPackage("com.waze"))}catch(_:Exception){}}}
         val unlock=Button(this).apply{text="ביטול";setOnClickListener{unlockDialog(frame)}}
