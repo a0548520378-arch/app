@@ -90,15 +90,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun refresh() {
-        status.text = when {
-            Prefs.disabled(this) ->
-                "החסימה מושהית כרגע."
-
-            hasBackgroundLocation() ->
-                "הגנה פעילה: חסימה מ־15 קמ״ש ומעלה. ניטור אוטומטי לאחר אתחול מוכן."
-
-            else ->
-                "הגנה פעילה, אך כדי לעבוד גם אחרי אתחול יש לאשר "מיקום תמיד"."
+        status.text = if (Prefs.disabled(this)) {
+            "החסימה מושהית כרגע."
+        } else if (hasBackgroundLocation()) {
+            "הגנה פעילה: חסימה מ־15 קמ״ש ומעלה. ניטור אוטומטי לאחר אתחול מוכן."
+        } else {
+            "הגנה פעילה. כדי לעבוד גם אחרי אתחול יש לאשר הרשאת מיקום תמיד."
         }
     }
 
@@ -131,7 +128,7 @@ class MainActivity : ComponentActivity() {
         ) {
             Toast.makeText(
                 this,
-                "כדי שהניטור יעבוד לאחר אתחול וברקע: לחץ על "אפשר מיקום תמיד".",
+                "כדי שהניטור יעבוד לאחר אתחול וברקע: פתח את הגדרות האפליקציה ואשר מיקום תמיד.",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -200,8 +197,8 @@ class MainActivity : ComponentActivity() {
     private fun startupDialog() {
         val msg = buildString {
             append("האפליקציה כוללת הפעלה אוטומטית לאחר BOOT_COMPLETED ועדכון האפליקציה.\n\n")
-            append("כדי שהניטור יוכל לפעול גם כשהאפליקציה אינה פתוחה, יש לאשר הרשאת "מיקום תמיד".\n\n")
-            append("בחלק מהמכשירים יש גם הגדרת יצרן בשם "הפעלה אוטומטית" או "ללא הגבלת סוללה".")
+            append("כדי שהניטור יוכל לפעול גם כשהאפליקציה אינה פתוחה, יש לאשר הרשאת מיקום תמיד.\n\n")
+            append("בחלק מהמכשירים יש גם הגדרת יצרן של הפעלה אוטומטית או ללא הגבלת סוללה.")
         }
 
         AlertDialog.Builder(this)
