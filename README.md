@@ -16,4 +16,4 @@
 > הערה: Android Auto/Automotive אינם זהים לאפליקציית Android רגילה. גרסה זו מיועדת להתקנה על מכשיר Android/יחידת מולטימדיה שמריצה APK רגיל; Android Auto projection כפוף לכללי הפלטפורמה.
 
 
-Build trigger check: 2026-10-04.
+Build validation after Kotlin fixes: 2026-10-04.
