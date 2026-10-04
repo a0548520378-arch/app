@@ -19,4 +19,4 @@
 Build validation after Kotlin fixes: 2026-10-04.
 
 
-Automatic-start hardening validation: 2026-10-04.
+Startup UI compilation fix validation: 2026-10-04.
