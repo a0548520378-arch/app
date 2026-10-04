@@ -1,5 +1,6 @@
 package il.co.drivingscreenguard
 import android.Manifest
+import android.app.AlertDialog
 import android.content.*
 import android.os.*
 import android.provider.Settings
