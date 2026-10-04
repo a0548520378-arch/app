@@ -1,20 +1,92 @@
 package il.co.drivingscreenguard
+
 import android.app.*
-import android.content.*
+import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.*
 import com.google.android.gms.location.*
-import android.location.Location
 
-class DrivingService:Service(){
-    private lateinit var client:FusedLocationProviderClient
-    private val cb=object:LocationCallback(){override fun onLocationResult(r:LocationResult){r.locations.forEach{update(it)}}}
-    override fun onCreate(){super.onCreate(); startForeground(7,notification()); client=LocationServices.getFusedLocationProviderClient(this);request()}
-    private fun request(){val req=LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY,2000).setMinUpdateIntervalMillis(1000).setMinUpdateDistanceMeters(3f).build();try{client.requestLocationUpdates(req,cb,Looper.getMainLooper())}catch(_:SecurityException){}}
-    private fun update(l:Location){
-        DrivingState.driving=l.speed>=15f/3.6f
-        if(DrivingState.driving && !Prefs.disabled(this)) BlockAccessibilityService.block(this) else BlockAccessibilityService.unblock(this)
+class DrivingService : Service() {
+    private lateinit var client: FusedLocationProviderClient
+
+    private val callback = object : LocationCallback() {
+        override fun onLocationResult(result: LocationResult) {
+            result.locations.forEach { update(it.speed) }
+        }
     }
-    private fun notification():Notification{val ch="drive";if(Build.VERSION.SDK_INT>=26)getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(ch,"ניטור נסיעה",NotificationManager.IMPORTANCE_LOW));return Notification.Builder(this,ch).setContentTitle("מגן מסך בנסיעה").setContentText("ניטור מהירות פעיל").setSmallIcon(il.co.drivingscreenguard.R.drawable.ic_launcher).build()}
-    override fun onBind(i:Intent?)=null
-    override fun onDestroy(){client.removeLocationUpdates(cb);DrivingState.driving=false;BlockAccessibilityService.unblock(this);super.onDestroy()}
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
+        startAsForeground()
+        client = LocationServices.getFusedLocationProviderClient(this)
+        requestUpdates()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getSystemService(NotificationManager::class.java).createNotificationChannel(
+                NotificationChannel(
+                    "drive_monitor",
+                    "ניטור נסיעה",
+                    NotificationManager.IMPORTANCE_LOW
+                )
+            )
+        }
+    }
+
+    private fun startAsForeground() {
+        val notification = Notification.Builder(this, "drive_monitor")
+            .setContentTitle("מגן מסך בנסיעה")
+            .setContentText("הניטור פועל ברקע")
+            .setSmallIcon(R.drawable.ic_launcher)
+            .setOngoing(true)
+            .setCategory(Notification.CATEGORY_SERVICE)
+            .build()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(7, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+        } else {
+            startForeground(7, notification)
+        }
+    }
+
+    private fun requestUpdates() {
+        val request = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            2000L
+        )
+            .setMinUpdateIntervalMillis(1000L)
+            .setMinUpdateDistanceMeters(3f)
+            .build()
+
+        try {
+            client.requestLocationUpdates(request, callback, Looper.getMainLooper())
+        } catch (_: SecurityException) {
+            // Permission not yet granted; MainActivity handles the permission flow.
+        }
+    }
+
+    private fun update(speedMetersPerSecond: Float) {
+        DrivingState.driving = speedMetersPerSecond >= 15f / 3.6f
+
+        if (DrivingState.driving && !Prefs.disabled(this)) {
+            BlockAccessibilityService.block(this)
+        } else {
+            BlockAccessibilityService.unblock(this)
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
+    override fun onBind(intent: Intent?) = null
+
+    override fun onDestroy() {
+        if (::client.isInitialized) client.removeLocationUpdates(callback)
+        DrivingState.driving = false
+        BlockAccessibilityService.unblock(this)
+        super.onDestroy()
+    }
 }
